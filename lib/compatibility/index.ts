@@ -4,16 +4,11 @@ import { calculateStockingLevel } from './stocking';
 import { checkAggression } from './aggression';
 
 type Range = { min: number; max: number };
-export type TargetParams = {
-  temp: Range | null;
-  ph: Range | null;
-  hardness: Range | null;
-};
 
 export function checkCompatibility(build: AquariumBuild): { 
-  issues: CompatibilityIssue[], 
+  warnings: CompatibilityIssue[], 
   stockingLevel: number,
-  targetParams: TargetParams 
+  targetParams: { temp: [number, number], ph: [number, number], hardness: [number, number] } 
 } {
   let issues: CompatibilityIssue[] = [];
 
@@ -82,9 +77,15 @@ export function checkCompatibility(build: AquariumBuild): {
       });
   }
 
+  const convertRange = (r: Range | null): [number, number] => r ? [r.min, r.max] : [0, 0];
+
   return {
-    issues,
+    warnings: issues,
     stockingLevel,
-    targetParams: waterResult.targetParams
+    targetParams: {
+        temp: convertRange(waterResult.targetParams.temp),
+        ph: convertRange(waterResult.targetParams.ph),
+        hardness: convertRange(waterResult.targetParams.hardness)
+    }
   };
 }
