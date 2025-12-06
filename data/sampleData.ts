@@ -119,3 +119,146 @@ export const samplePlants: Plant[] = [
     imageUrl: '/images/java-fern.png'
   }
 ];
+
+export const sampleInvertebrates: Invertebrate[] = [
+  {
+    id: 'invert-1',
+    commonName: 'Cherry Shrimp',
+    scientificName: 'Neocaridina davidi',
+    category: 'Freshwater',
+    subcategory: 'Shrimp',
+    adultSizeInches: 1,
+    minTankGallons: 2,
+    swimmingLevel: 'bottom',
+    waterParams: { tempMin: 65, tempMax: 80, phMin: 6.5, phMax: 8.0, hardnessMin: 6, hardnessMax: 15 },
+    temperament: 'peaceful',
+    schoolingSize: 5,
+    territorialRadius: 0,
+    incompatibleWith: ['fish-3', 'fish-2'], // Angelfish, Betta (sometimes)
+    predatorOf: [],
+    preyTo: ['fish-3', 'fish-2'],
+    careLevel: 'beginner',
+    diet: 'omnivore',
+    copperSensitive: true,
+    bioload: 'minimal',
+    plantSafe: true,
+    price: 3.99,
+    imageUrl: '/images/cherry-shrimp.png'
+  },
+  {
+    id: 'invert-2',
+    commonName: 'Nerite Snail',
+    scientificName: 'Neritina natalensis',
+    category: 'Freshwater',
+    subcategory: 'Snail',
+    adultSizeInches: 1,
+    minTankGallons: 5,
+    swimmingLevel: 'all',
+    waterParams: { tempMin: 72, tempMax: 78, phMin: 7.5, phMax: 8.5, hardnessMin: 8, hardnessMax: 20 },
+    temperament: 'peaceful',
+    schoolingSize: 1,
+    territorialRadius: 0,
+    incompatibleWith: [],
+    predatorOf: [],
+    preyTo: [],
+    careLevel: 'beginner',
+    diet: 'herbivore',
+    copperSensitive: true,
+    bioload: 'low',
+    plantSafe: true,
+    price: 2.99,
+    imageUrl: '/images/nerite-snail.png'
+  }
+];
+
+export const sampleEquipment: Equipment[] = [
+  {
+    id: 'filter-1',
+    name: 'AquaClear 20',
+    brand: 'Fluval',
+    category: 'Filter',
+    price: 29.99,
+    minTankGallons: 5,
+    maxTankGallons: 20,
+    flowRateGPH: 100,
+    filterType: 'Hang-on-Back',
+    imageUrl: '/images/aquaclear-20.png'
+  },
+  {
+    id: 'filter-2',
+    name: 'Fluval 207 Performance Canister Filter',
+    brand: 'Fluval',
+    category: 'Filter',
+    price: 119.99,
+    minTankGallons: 20,
+    maxTankGallons: 45,
+    flowRateGPH: 206,
+    filterType: 'Canister',
+    imageUrl: '/images/fluval-207.png'
+  },
+  {
+    id: 'heater-1',
+    name: 'Eheim Jager 50W',
+    brand: 'Eheim',
+    category: 'Heater',
+    price: 24.99,
+    minTankGallons: 5,
+    maxTankGallons: 15,
+    watts: 50,
+    imageUrl: '/images/eheim-50w.png'
+  },
+  {
+    id: 'heater-2',
+    name: 'Eheim Jager 100W',
+    brand: 'Eheim',
+    category: 'Heater',
+    price: 29.99,
+    minTankGallons: 15,
+    maxTankGallons: 30,
+    watts: 100,
+    imageUrl: '/images/eheim-100w.png'
+  },
+  {
+    id: 'light-1',
+    name: 'Fluval Plant 3.0 LED - 24"',
+    brand: 'Fluval',
+    category: 'Light',
+    price: 139.99,
+    minTankGallons: 15,
+    maxTankGallons: 30,
+    watts: 32,
+    lumens: 2350,
+    lengthInches: 24,
+    imageUrl: '/images/fluval-plant-3.0.png'
+  }
+];
+
+export const sampleSubstrate: Substrate[] = [
+  {
+    id: 'sub-1',
+    name: 'Eco-Complete Planted',
+    brand: 'CaribSea',
+    type: 'soil',
+    nutrientRich: true,
+    buffersPH: false,
+    poundsPerGallon: 1.5,
+    bagSizePounds: 20,
+    price: 29.99,
+    imageUrl: '/images/eco-complete.png'
+  },
+  {
+    id: 'sub-2',
+    name: 'Super Naturals Sand',
+    brand: 'CaribSea',
+    type: 'sand',
+    nutrientRich: false,
+    buffersPH: true,
+    buffersTo: 7.0,
+    grainSizeMM: 0.5,
+    color: 'Sunset Gold',
+    poundsPerGallon: 1.5,
+    bagSizePounds: 20,
+    price: 24.99,
+    imageUrl: '/images/super-naturals.png'
+  }
+];
