@@ -144,6 +144,11 @@ export interface AquariumBuild {
   totalCost: number;
   stockingLevel: number; // Percentage
   warnings: CompatibilityIssue[];
+  targetParams?: {
+    temp: [number, number];
+    ph: [number, number];
+    hardness: [number, number];
+  };
 }
 
 export type IssueSeverity = 'info' | 'warning' | 'error';

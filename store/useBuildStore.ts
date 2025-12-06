@@ -40,7 +40,12 @@ const initialState = {
   substrateBags: 0,
   totalCost: 0,
   stockingLevel: 0,
-  warnings: []
+  warnings: [],
+  targetParams: { 
+    temp: [70, 80] as [number, number], 
+    ph: [6.5, 7.5] as [number, number], 
+    hardness: [5, 15] as [number, number] 
+  }
 };
 
 export const useBuildStore = create<BuildState>()(
@@ -52,8 +57,6 @@ export const useBuildStore = create<BuildState>()(
 
       recalculate: () => {
         const state = get();
-        // Construct build object for checker
-        // We need to cast or ensure it matches AquariumBuild structure
         const build: AquariumBuild = {
             id: state.id,
             name: state.name,
@@ -80,18 +83,28 @@ export const useBuildStore = create<BuildState>()(
         if (state.equipment.filter) cost += state.equipment.filter.price;
         if (state.equipment.heater) cost += state.equipment.heater.price;
         if (state.equipment.light) cost += state.equipment.light.price;
-        // ... other equipment
+        if (state.equipment.co2) cost += state.equipment.co2.price;
+        if (state.equipment.airPump) cost += state.equipment.airPump.price;
+        state.equipment.other.forEach(e => cost += e.price);
         if (state.substrate) cost += state.substrate.price * state.substrateBags;
 
         set({ 
-            warnings: result.issues, 
+            warnings: result.warnings, 
             stockingLevel: result.stockingLevel,
+            targetParams: result.targetParams,
             totalCost: cost
         });
       },
 
       setTank: (tank) => {
         set({ tank });
+        // Recalculate substrate bags if substrate exists
+        const sub = get().substrate;
+        if (sub) {
+             const needed = sub.poundsPerGallon * tank.volumeGallons;
+             const bags = Math.ceil(needed / sub.bagSizePounds);
+             set({ substrateBags: bags });
+        }
         get().recalculate();
       },
       
@@ -178,32 +191,28 @@ export const useBuildStore = create<BuildState>()(
 
       setEquipment: (category, item) => {
         const current = get().equipment;
-        const key = category.toLowerCase() as keyof typeof current;
+        // Map category string to state key
+        let key: keyof typeof current | null = null;
+        if (category === 'Filter') key = 'filter';
+        else if (category === 'Heater') key = 'heater';
+        else if (category === 'Light') key = 'light';
+        else if (category === 'CO2') key = 'co2';
+        else if (category === 'AirPump') key = 'airPump';
+        else if (category === 'Other') key = 'other';
+
         if (key === 'other') {
-            // Handle 'other' array logic if needed, for now ignore or append
-            // Assuming 'Other' category items go to 'other' array
              set({ equipment: { ...current, other: [...current.other, item] } });
-        } else if (key in current) {
-             set({ equipment: { ...current, [key]: item } });
+        } else if (key) {
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             set({ equipment: { ...current, [key]: item } as any });
         }
         get().recalculate();
       },
 
       setSubstrate: (substrate) => {
         set({ substrate });
-        // Calculate bags needed based on tank size
         const tank = get().tank;
         if (tank && substrate) {
-            // Heuristic: 1.5 lbs per gallon or based on dimensions
-            // Volume = L * W * H. Floor = L * W.
-            // 2 inch depth.
-            // Volume of substrate = L * W * 2 inches.
-            // Weight = Volume * Density.
-            // Simplified: poundsPerGallon * tankGallons? No, poundsPerGallon is usually density.
-            // Let's use: (L * W * 2) / 231 (gallons of substrate) * Density (lbs/gal of substrate)?
-            // Or just use the field `poundsPerGallon` from Substrate model which I defined as "pounds per gallon of tank"?
-            // "poundsPerGallon recommendation (how many pounds of this substrate per gallon for a typical 2-inch bed)"
-            // So: bags = (poundsPerGallon * tank.volumeGallons) / bagSizePounds
             const needed = substrate.poundsPerGallon * tank.volumeGallons;
             const bags = Math.ceil(needed / substrate.bagSizePounds);
             set({ substrateBags: bags });
