@@ -1,6 +1,7 @@
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { BuildDashboard } from '@/components/BuildDashboard';
+import { PartBrowserModal } from '@/components/PartBrowserModal';
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
           <BuildDashboard />
         </main>
       </div>
+      <PartBrowserModal />
     </div>
   );
 }

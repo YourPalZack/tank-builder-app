@@ -1,6 +1,7 @@
 'use client';
 
 import { useBuildStore } from '@/store/useBuildStore';
+import { useUIStore } from '@/store/useUIStore';
 import { cn } from '@/lib/utils';
 import { 
   Box, Fish, Shell, Sprout, Filter, Thermometer, Lightbulb, 
@@ -22,6 +23,7 @@ const categories = [
 
 export function Sidebar() {
   const build = useBuildStore();
+  const { openModal } = useUIStore();
 
   const getCount = (id: string) => {
     switch (id) {
@@ -51,6 +53,7 @@ export function Sidebar() {
           return (
             <button
               key={cat.id}
+              onClick={() => openModal(cat.id)}
               className={cn(
                 "w-full flex items-center justify-between p-3 rounded-lg transition-colors text-left group",
                 "hover:bg-white/5 text-gray-300 hover:text-white"
