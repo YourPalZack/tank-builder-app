@@ -334,6 +334,19 @@ export function PartBrowserModal() {
             </div>
         </div>
       </div>
+      <ItemDetailModal 
+        isOpen={!!detailItem} 
+        onClose={() => setDetailItem(null)} 
+        item={detailItem}
+        type={
+            activeCategory === 'tank' ? 'tank' :
+            activeCategory === 'fish' ? 'fish' :
+            activeCategory === 'inverts' ? 'invertebrate' :
+            activeCategory === 'plants' ? 'plant' :
+            activeCategory === 'substrate' ? 'substrate' :
+            'equipment'
+        }
+      />
     </div>
   );
 }
