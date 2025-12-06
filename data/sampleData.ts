@@ -1,4 +1,4 @@
-import { Tank, Fish, Plant } from '@/types';
+import { Tank, Fish, Plant, Invertebrate, Equipment, Substrate } from '@/types';
 
 export const sampleTanks: Tank[] = [
   {
