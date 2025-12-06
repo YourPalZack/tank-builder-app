@@ -1,0 +1,47 @@
+---
+applyTo: '**'
+---
+{
+  "scope": "Aquarium Compatibility Builder App (AquaBuilder)",
+  "goal": "You are helping build AquaBuilder, a full-featured aquarium planner like PCPartPicker but for aquariums. The goal is to help users build compatible aquarium setups in real time with beautiful UI and expert-level compatibility logic.",
+  "tech_stack": {
+    "framework": "Next.js 14+ using App Router",
+    "language": "TypeScript",
+    "styling": "Tailwind CSS with reusable component classes and theme tokens",
+    "state": "Zustand (preferred) or useReducer + Context for localized logic",
+    "icons": "Lucide React",
+    "storage": "localStorage (for offline saves), shareable via URL"
+  },
+  "design_guidelines": {
+    "theme": "Light mode (default), clean aqua palette with #14b8a6, #22d3ee for accents, white and light gray backgrounds",
+    "typography": {
+      "headings": "Outfit",
+      "body": "Source Sans 3"
+    },
+    "effects": "Subtle card shadows, water ripple animations, transitions on modal and dashboard elements",
+    "accessibility": "All components must have ARIA labels, keyboard focus states, and use semantic HTML"
+  },
+  "best_practices": {
+    "components": "Break all UI into modular, reusable components in /components",
+    "state_management": "Lift shared state to Zustand store in /store; avoid prop drilling",
+    "logic_separation": "Place compatibility logic in pure functions under /lib/compatibility",
+    "routing": "Use Next.js App Router with /app directory structure",
+    "data_modeling": "Use strong TypeScript interfaces matching aquarium domain (Tank, Fish, Equipment, etc.)",
+    "ui_behavior": "Use Headless UI patterns where needed, and debounce inputs for performance"
+  },
+  "project_structure": {
+    "app": "/app — Next.js route handlers, layout, pages",
+    "components": "/components — Shared UI and layout components",
+    "data": "/data — Static sample aquarium items (fish, plants, etc.)",
+    "lib": "/lib — Compatibility engine, utils, calculations",
+    "store": "/store — Zustand-based global state for aquarium builds",
+    "types": "/types — TypeScript models for aquarium entities"
+  },
+  "copilot_specifics": [
+    "Always use Tailwind utility classes over inline styles.",
+    "Prefer composable components: Card, Modal, SidebarPanel, PartBrowser, CompatibilityWidget, etc.",
+    "When generating UI, wrap compatibility status in a reusable component like <CompatibilityBadge />.",
+    "Ensure accessibility by adding appropriate `role`, `aria-*` labels, and keyboard navigation (Tab, Enter, Escape).",
+    "Write all React components with named exports and clear props interfaces."
+  ]
+}
