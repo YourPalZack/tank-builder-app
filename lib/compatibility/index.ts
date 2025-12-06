@@ -24,8 +24,7 @@ export function checkCompatibility(build: AquariumBuild): {
   const stockingLevel = calculateStockingLevel(
     build.tank,
     build.fish,
-    build.inverts,
-    build.equipment.filter
+    build.inverts
   );
   
   if (stockingLevel > 100) {

@@ -1,10 +1,9 @@
-import { Fish, Invertebrate, Tank, Equipment } from '@/types';
+import { Tank, Fish, Invertebrate } from '@/types';
 
 export function calculateStockingLevel(
   tank: Tank | null,
   fish: { item: Fish; quantity: number }[],
-  inverts: { item: Invertebrate; quantity: number }[],
-  _filter: Equipment | null
+  inverts: { item: Invertebrate; quantity: number }[]
 ): number {
   if (!tank) return 0;
 
@@ -34,7 +33,7 @@ export function calculateStockingLevel(
   });
 
   // Base capacity is tank volume
-  let capacity = tank.volumeGallons;
+  const capacity = tank.volumeGallons;
 
   // Filter adjustment: If filter is powerful, we might allow slightly higher stocking,
   // but usually it's safer not to.
