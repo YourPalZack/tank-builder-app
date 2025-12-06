@@ -21,6 +21,9 @@ interface BuildState extends AquariumBuild {
   setSubstrate: (substrate: Substrate | null) => void;
   resetBuild: () => void;
   recalculate: () => void;
+  loadBuild: (build: AquariumBuild) => void;
+  createNewBuild: () => void;
+  setName: (name: string) => void;
 }
 
 const initialState = {
@@ -225,6 +228,34 @@ export const useBuildStore = create<BuildState>()(
       resetBuild: () => {
         set({ ...initialState, id: get().id, name: get().name });
       },
+
+      loadBuild: (build) => {
+        set({
+            id: build.id,
+            name: build.name,
+            tank: build.tank,
+            fish: build.fish,
+            inverts: build.inverts,
+            plants: build.plants,
+            equipment: build.equipment,
+            substrate: build.substrate,
+            substrateBags: build.substrateBags,
+            totalCost: build.totalCost,
+            stockingLevel: build.stockingLevel,
+            warnings: build.warnings,
+            targetParams: build.targetParams
+        });
+      },
+
+      createNewBuild: () => {
+        set({
+            ...initialState,
+            id: crypto.randomUUID(),
+            name: 'New Aquarium Build'
+        });
+      },
+
+      setName: (name) => set({ name }),
     }),
     {
       name: 'aqua-builder-storage',
