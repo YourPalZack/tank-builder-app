@@ -2,6 +2,7 @@
 
 import { useBuildStore } from '@/store/useBuildStore';
 import { useSavedBuildsStore } from '@/store/useSavedBuildsStore';
+import { useUIStore } from '@/store/useUIStore';
 import { Card } from '@/components/ui/Card';
 import { CompatibilityBadge } from '@/components/ui/CompatibilityBadge';
 import CompatibilityWidget from '@/components/CompatibilityWidget';
@@ -10,7 +11,8 @@ import { WaterParameterVisualizer } from '@/components/WaterParameterVisualizer'
 import { StockingVisualizer } from '@/components/StockingVisualizer';
 import { MaintenanceWidget } from '@/components/MaintenanceWidget';
 import { CyclingGuide } from '@/components/CyclingGuide';
-import { Save, Edit2 } from 'lucide-react';
+import { BuildWizardModal } from '@/components/BuildWizardModal';
+import { Save, Edit2, Wand2 } from 'lucide-react';
 import { useState } from 'react';
 import { AquariumBuild } from '@/types';
 
@@ -19,6 +21,7 @@ export function BuildDashboard() {
   const { saveBuild } = useSavedBuildsStore();
   const { tank, warnings, totalCost } = build;
   const [isEditingName, setIsEditingName] = useState(false);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
 
   const status = warnings.some(w => w.severity === 'error') ? 'error' :
                  warnings.some(w => w.severity === 'warning') ? 'warning' : 'ok';
@@ -88,9 +91,17 @@ export function BuildDashboard() {
             ) : (
               <div className="text-center text-slate-400">
                 <p className="text-lg">No Tank Selected</p>
-                <button className="mt-4 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors">
-                  Select a Tank
-                </button>
+                <div className="flex gap-4 justify-center mt-4">
+                    <button className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors">
+                        Select a Tank
+                    </button>
+                    <button 
+                        onClick={() => setIsWizardOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg transition-colors"
+                    >
+                        <Wand2 className="w-4 h-4" /> Build Wizard
+                    </button>
+                </div>
               </div>
             )}
             
@@ -131,6 +142,8 @@ export function BuildDashboard() {
             </Card>
         </div>
       </div>
+      
+      <BuildWizardModal isOpen={isWizardOpen} onClose={() => setIsWizardOpen(false)} />
     </div>
   );
 }
