@@ -18,6 +18,7 @@ import { AquariumBuild } from '@/types';
 
 export function BuildDashboard() {
   const build = useBuildStore();
+  const { openModal } = useUIStore();
   const { saveBuild } = useSavedBuildsStore();
   const { tank, warnings, totalCost } = build;
   const [isEditingName, setIsEditingName] = useState(false);
