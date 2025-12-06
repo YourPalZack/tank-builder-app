@@ -1,14 +1,14 @@
 'use client';
 
-import { useSavedBuildsStore } from '@/store/useSavedBuildsStore';
+import { useSavedBuilds } from '@/hooks/useSavedBuilds';
 import { useBuildStore } from '@/store/useBuildStore';
 import { BuildCard } from '@/components/BuildCard';
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { AquariumBuild } from '@/types';
 
 export default function MyBuildsPage() {
-  const { savedBuilds, deleteBuild, saveBuild } = useSavedBuildsStore();
+  const { savedBuilds, deleteBuild, saveBuild, isLoading } = useSavedBuilds();
   const { loadBuild, createNewBuild } = useBuildStore();
   const router = useRouter();
 
@@ -26,6 +26,14 @@ export default function MyBuildsPage() {
     createNewBuild();
     router.push('/');
   };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6 flex justify-center items-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -48,11 +56,11 @@ export default function MyBuildsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {savedBuilds.map(build => (
                 <BuildCard 
-                    key={build.id} 
-                    build={build} 
-                    onEdit={handleEdit} 
-                    onDelete={deleteBuild}
-                    onClone={handleClone}
+                  key={build.id} 
+                  build={build} 
+                  onEdit={handleEdit}
+                  onDelete={deleteBuild}
+                  onClone={handleClone}
                 />
             ))}
         </div>

@@ -1,9 +1,16 @@
 'use client';
 
 import { useBuildStore } from '@/store/useBuildStore';
-import { Trash2, Plus, Minus, Box, Fish, Sprout, Shell, Layers, ShoppingBag } from 'lucide-react';
+import { Trash2, Plus, Minus, Box, Fish, Sprout, Shell, Layers, ShoppingBag, ExternalLink } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
+import { 
+  getFishPurchaseLinks, 
+  getPlantPurchaseLinks, 
+  getSubstratePurchaseLinks, 
+  getInvertebratePurchaseLinks,
+  getTankPurchaseLinks
+} from '@/lib/purchasing';
 
 export function SelectedPartsList() {
   const { 
@@ -52,6 +59,17 @@ export function SelectedPartsList() {
               <div className="font-mono font-medium text-slate-700">
                 ${tank.price}
               </div>
+              {getTankPurchaseLinks(tank)[0]?.url && (
+                <a 
+                  href={getTankPurchaseLinks(tank)[0].url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-teal-600 hover:text-teal-700 p-1"
+                  title="Buy Now"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              )}
               <button 
                 onClick={() => setTank(null)}
                 className="text-slate-400 hover:text-red-500 transition-colors"
@@ -101,6 +119,17 @@ export function SelectedPartsList() {
                   <div className="font-mono font-medium text-slate-700 w-16 text-right">
                     ${(item.item.price * item.quantity).toFixed(2)}
                   </div>
+                  {getFishPurchaseLinks(item.item)[0]?.url && (
+                    <a 
+                      href={getFishPurchaseLinks(item.item)[0].url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-teal-600 hover:text-teal-700 p-1"
+                      title="Buy Now"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  )}
                   <button 
                     onClick={() => removeFish(item.item.id)}
                     className="text-slate-400 hover:text-red-500 transition-colors"
@@ -152,6 +181,17 @@ export function SelectedPartsList() {
                   <div className="font-mono font-medium text-slate-700 w-16 text-right">
                     ${(item.item.price * item.quantity).toFixed(2)}
                   </div>
+                  {getInvertebratePurchaseLinks(item.item)[0]?.url && (
+                    <a 
+                      href={getInvertebratePurchaseLinks(item.item)[0].url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-teal-600 hover:text-teal-700 p-1"
+                      title="Buy Now"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  )}
                   <button 
                     onClick={() => removeInvert(item.item.id)}
                     className="text-slate-400 hover:text-red-500 transition-colors"
@@ -203,6 +243,17 @@ export function SelectedPartsList() {
                   <div className="font-mono font-medium text-slate-700 w-16 text-right">
                     ${(item.item.price * item.quantity).toFixed(2)}
                   </div>
+                  {getPlantPurchaseLinks(item.item)[0]?.url && (
+                    <a 
+                      href={getPlantPurchaseLinks(item.item)[0].url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-teal-600 hover:text-teal-700 p-1"
+                      title="Buy Now"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  )}
                   <button 
                     onClick={() => removePlant(item.item.id)}
                     className="text-slate-400 hover:text-red-500 transition-colors"
@@ -236,6 +287,17 @@ export function SelectedPartsList() {
               <div className="font-mono font-medium text-slate-700">
                 ${substrate.price}
               </div>
+              {getSubstratePurchaseLinks(substrate)[0]?.url && (
+                <a 
+                  href={getSubstratePurchaseLinks(substrate)[0].url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-teal-600 hover:text-teal-700 p-1"
+                  title="Buy Now"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              )}
               <button 
                 onClick={() => setSubstrate(null)}
                 className="text-slate-400 hover:text-red-500 transition-colors"

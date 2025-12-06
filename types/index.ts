@@ -56,6 +56,7 @@ export interface Fish extends PurchasableItem {
   specialNeeds?: string;
   price: number;
   imageUrl?: string;
+  link?: string;
 }
 
 export interface Invertebrate extends Omit<Fish, 'nipsAtFins' | 'incompatibleWithLongFinned'> {
@@ -83,6 +84,7 @@ export interface Plant extends PurchasableItem {
   incompatibleWithFish: string[];
   price: number;
   imageUrl?: string;
+  link?: string;
 }
 
 export type EquipmentCategory = 'Filter' | 'Heater' | 'Light' | 'CO2' | 'AirPump' | 'Other';
@@ -119,6 +121,7 @@ export interface Substrate extends PurchasableItem {
   bagSizePounds: number;
   price: number;
   imageUrl?: string;
+  link?: string;
 }
 
 export interface BuildItem<T> {

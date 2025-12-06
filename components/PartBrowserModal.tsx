@@ -3,23 +3,42 @@
 import { useUIStore } from '@/store/useUIStore';
 import { useBuildStore } from '@/store/useBuildStore';
 import { 
-  sampleTanks, 
-  sampleFish, 
-  samplePlants, 
-  sampleInvertebrates, 
-  sampleEquipment, 
-  sampleSubstrate 
-} from '@/data/sampleData';
-import { X, Search, Filter, AlertTriangle, CheckCircle } from 'lucide-react';
+  useTanks, 
+  useFish, 
+  usePlants, 
+  useInvertebrates, 
+  useEquipment, 
+  useSubstrates 
+} from '@/hooks/useCatalog';
+import { supabase } from '@/lib/supabase';
+import { X, Search, Filter, AlertTriangle, CheckCircle, Loader2, Database } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
-import { Tank, Fish, Plant, Invertebrate, Equipment, Substrate, AquariumBuild } from '@/types';
-import { useState, useMemo, useCallback } from 'react';
+import { Tank, Fish, Plant, Invertebrate, Equipment, Substrate, AquariumBuild, EquipmentCategory } from '@/types';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { checkCompatibility } from '@/lib/compatibility';
 import { ItemDetailModal } from './ItemDetailModal';
+import { 
+  mapAmazonItemToTank, 
+  mapAmazonItemToEquipment, 
+  mapAmazonItemToFish, 
+  mapAmazonItemToPlant, 
+  mapAmazonItemToSubstrate, 
+  mapAmazonItemToInvertebrate,
+  AmazonItem 
+} from '@/lib/amazon';
 
 export function PartBrowserModal() {
   const { isModalOpen, activeCategory, closeModal } = useUIStore();
   const buildStore = useBuildStore();
+  
+  // Fetch data from Supabase
+  const { tanks, isLoading: loadingTanks } = useTanks();
+  const { fish, isLoading: loadingFish } = useFish();
+  const { invertebrates, isLoading: loadingInverts } = useInvertebrates();
+  const { plants, isLoading: loadingPlants } = usePlants();
+  const { equipment, isLoading: loadingEquipment } = useEquipment();
+  const { substrates, isLoading: loadingSubstrates } = useSubstrates();
+
   const { 
     tank: currentTank, 
     fish: currentFish, 
@@ -42,50 +61,343 @@ export function PartBrowserModal() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [detailItem, setDetailItem] = useState<any>(null);
 
-  const { items, title } = useMemo(() => {
+  const [searchSource, setSearchSource] = useState<'local' | 'amazon'>('local');
+  const [amazonResults, setAmazonResults] = useState<AmazonItem[]>([]);
+  const [isLoadingAmazon, setIsLoadingAmazon] = useState(false);
+
+  // Clear search query when category changes
+  // useEffect(() => {
+  //   setSearchQuery('');
+  //   setAmazonResults([]);
+  // }, [activeCategory]);
+
+  const searchAmazon = useCallback(async (query: string) => {
+    setIsLoadingAmazon(true);
+    try {
+      // Map activeCategory to Amazon search term/category
+      let term = query;
+      let category = 'All';
+      
+      if (activeCategory === 'tank') { term += ' aquarium tank'; category = 'PetSupplies'; }
+      else if (activeCategory === 'fish') { term += ' live aquarium fish'; category = 'PetSupplies'; }
+      else if (activeCategory === 'plants') { term += ' live aquarium plants'; category = 'PetSupplies'; }
+      else if (activeCategory === 'inverts') { term += ' live aquarium shrimp snail'; category = 'PetSupplies'; }
+      else if (activeCategory === 'substrate') { term += ' aquarium substrate'; category = 'PetSupplies'; }
+      else { term += ' aquarium equipment'; category = 'PetSupplies'; }
+
+      const res = await fetch(`/api/amazon/search?query=${encodeURIComponent(term)}&category=${category}`);
+      const data = await res.json();
+      if (data.SearchResult?.Items) {
+        setAmazonResults(data.SearchResult.Items);
+      } else {
+        setAmazonResults([]);
+      }
+    } catch (e) {
+      console.error(e);
+      setAmazonResults([]);
+    } finally {
+      setIsLoadingAmazon(false);
+    }
+  }, [activeCategory]);
+
+  // Effect: Handle Category Change
+  useEffect(() => {
+      setSearchQuery(''); // Clear search query on category change
+      if (searchSource === 'amazon') {
+          searchAmazon(''); // Fetch default/popular items for new category
+      }
+  }, [activeCategory, searchSource, searchAmazon]);
+
+  // Effect: Handle Source Change
+  useEffect(() => {
+      if (searchSource === 'amazon') {
+          // When switching to Amazon, perform search with current query (or empty if none)
+          searchAmazon(searchQuery);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchSource, searchAmazon]); // We intentionally omit searchQuery to avoid search-as-you-type 
+
+  const handleAmazonAdd = (item: AmazonItem) => {
+    switch (activeCategory) {
+      case 'tank':
+        setTank(mapAmazonItemToTank(item));
+        closeModal();
+        break;
+      case 'fish':
+        addFish(mapAmazonItemToFish(item), 1);
+        break;
+      case 'inverts':
+        addInvert(mapAmazonItemToInvertebrate(item), 1);
+        break;
+      case 'plants':
+        addPlant(mapAmazonItemToPlant(item), 1);
+        break;
+// ... imports
+
+// ...
+
+      case 'filter':
+      case 'heater':
+      case 'light':
+      case 'co2':
+      case 'other': {
+        let eqCat: EquipmentCategory = 'Other';
+        if (activeCategory === 'filter') eqCat = 'Filter';
+        if (activeCategory === 'heater') eqCat = 'Heater';
+        if (activeCategory === 'light') eqCat = 'Light';
+        if (activeCategory === 'co2') eqCat = 'CO2';
+        
+        setEquipment(eqCat, mapAmazonItemToEquipment(item, eqCat));
+        closeModal(); 
+        break;
+      }
+      case 'substrate':
+        setSubstrate(mapAmazonItemToSubstrate(item));
+        closeModal();
+        break;
+    }
+  };
+
+  const handleAmazonSave = async (item: AmazonItem) => {
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert('Please log in to save custom parts.');
+      return;
+    }
+
+    const userId = user.id;
+    let error = null;
+
+    switch (activeCategory) {
+      case 'tank': {
+        const tank = mapAmazonItemToTank(item);
+        const { error: e } = await supabase.from('tanks').insert({
+          user_id: userId,
+          name: tank.name,
+          brand: tank.brand,
+          dimensions: tank.dimensions,
+          volume_gallons: tank.volumeGallons,
+          volume_liters: tank.volumeLiters,
+          shape: tank.shape,
+          material: tank.material,
+          price: tank.price,
+          image_url: tank.imageUrl,
+          link: tank.link,
+          purchase_links: tank.purchaseLinks
+        });
+        error = e;
+        break;
+      }
+      case 'fish': {
+        const fish = mapAmazonItemToFish(item);
+        const { error: e } = await supabase.from('species').insert({
+          user_id: userId,
+          type: 'fish',
+          common_name: fish.commonName,
+          scientific_name: fish.scientificName,
+          category: fish.category,
+          subcategory: fish.subcategory,
+          adult_size_inches: fish.adultSizeInches,
+          min_tank_gallons: fish.minTankGallons,
+          swimming_level: fish.swimmingLevel,
+          water_params: fish.waterParams,
+          temperament: fish.temperament,
+          schooling_size: fish.schoolingSize,
+          territorial_radius: fish.territorialRadius,
+          incompatible_with: fish.incompatibleWith,
+          predator_of: fish.predatorOf,
+          prey_to: fish.preyTo,
+          nips_at_fins: fish.nipsAtFins,
+          incompatible_with_long_finned: fish.incompatibleWithLongFinned,
+          is_long_finned: fish.isLongFinned,
+          care_level: fish.careLevel,
+          diet: fish.diet,
+          price: fish.price,
+          image_url: fish.imageUrl,
+          link: fish.link,
+          purchase_links: fish.purchaseLinks
+        });
+        error = e;
+        break;
+      }
+      case 'inverts': {
+        const invert = mapAmazonItemToInvertebrate(item);
+        const { error: e } = await supabase.from('species').insert({
+          user_id: userId,
+          type: 'invertebrate',
+          common_name: invert.commonName,
+          scientific_name: invert.scientificName,
+          category: invert.category,
+          subcategory: invert.subcategory,
+          adult_size_inches: invert.adultSizeInches,
+          min_tank_gallons: invert.minTankGallons,
+          swimming_level: invert.swimmingLevel,
+          water_params: invert.waterParams,
+          temperament: invert.temperament,
+          schooling_size: invert.schoolingSize,
+          territorial_radius: invert.territorialRadius,
+          incompatible_with: invert.incompatibleWith,
+          predator_of: invert.predatorOf,
+          prey_to: invert.preyTo,
+          care_level: invert.careLevel,
+          diet: invert.diet,
+          copper_sensitive: invert.copperSensitive,
+          bioload: invert.bioload,
+          plant_safe: invert.plantSafe,
+          price: invert.price,
+          image_url: invert.imageUrl,
+          link: invert.link,
+          purchase_links: invert.purchaseLinks
+        });
+        error = e;
+        break;
+      }
+      case 'plants': {
+        const plant = mapAmazonItemToPlant(item);
+        const { error: e } = await supabase.from('plants').insert({
+          user_id: userId,
+          common_name: plant.commonName,
+          scientific_name: plant.scientificName,
+          category: plant.category,
+          light_requirement: plant.lightRequirement,
+          co2_required: plant.co2Required,
+          co2_recommended: plant.co2Recommended,
+          substrate_type: plant.substrateType,
+          water_params: plant.waterParams,
+          growth_rate: plant.growthRate,
+          max_height_inches: plant.maxHeightInches,
+          placement: plant.placement,
+          incompatible_with_fish: plant.incompatibleWithFish,
+          price: plant.price,
+          image_url: plant.imageUrl,
+          link: plant.link,
+          purchase_links: plant.purchaseLinks
+        });
+        error = e;
+        break;
+      }
+      case 'filter':
+      case 'heater':
+      case 'light':
+      case 'co2':
+      case 'other': {
+        let eqCat: EquipmentCategory = 'Other';
+        if (activeCategory === 'filter') eqCat = 'Filter';
+        if (activeCategory === 'heater') eqCat = 'Heater';
+        if (activeCategory === 'light') eqCat = 'Light';
+        if (activeCategory === 'co2') eqCat = 'CO2';
+        
+        const equip = mapAmazonItemToEquipment(item, eqCat);
+        const { error: e } = await supabase.from('equipment').insert({
+          user_id: userId,
+          name: equip.name,
+          brand: equip.brand,
+          category: equip.category,
+          price: equip.price,
+          min_tank_gallons: equip.minTankGallons,
+          max_tank_gallons: equip.maxTankGallons,
+          flow_rate_gph: equip.flowRateGPH,
+          watts: equip.watts,
+          lumens: equip.lumens,
+          length_inches: equip.lengthInches,
+          filter_type: equip.filterType,
+          image_url: equip.imageUrl,
+          link: equip.link,
+          purchase_links: equip.purchaseLinks
+        });
+        error = e;
+        break;
+      }
+      case 'substrate': {
+        const sub = mapAmazonItemToSubstrate(item);
+        const { error: e } = await supabase.from('substrates').insert({
+          user_id: userId,
+          name: sub.name,
+          brand: sub.brand,
+          type: sub.type,
+          nutrient_rich: sub.nutrientRich,
+          buffers_ph: sub.buffersPH,
+          buffers_to: sub.buffersTo,
+          grain_size_mm: sub.grainSizeMM,
+          color: sub.color,
+          pounds_per_gallon: sub.poundsPerGallon,
+          bag_size_pounds: sub.bagSizePounds,
+          price: sub.price,
+          image_url: sub.imageUrl,
+          link: sub.link,
+          purchase_links: sub.purchaseLinks
+        });
+        error = e;
+        break;
+      }
+    }
+
+    if (error) {
+      console.error('Error saving custom part:', error);
+      alert('Failed to save custom part. See console for details.');
+    } else {
+      // Switch to local view to show the newly added item
+      // We might need to revalidate the SWR cache here
+      setSearchSource('local');
+    }
+  };
+
+  const { items, title, isLoading } = useMemo(() => {
     let items: (Tank | Fish | Plant | Invertebrate | Equipment | Substrate)[] = [];
     let title = '';
+    let isLoading = false;
 
     if (isModalOpen) {
       switch (activeCategory) {
         case 'tank':
-          items = sampleTanks;
+          items = tanks || [];
+          isLoading = loadingTanks;
           title = 'Select a Tank';
           break;
         case 'fish':
-          items = sampleFish;
+          items = fish || [];
+          isLoading = loadingFish;
           title = 'Add Fish';
           break;
         case 'inverts':
-          items = sampleInvertebrates;
+          items = invertebrates || [];
+          isLoading = loadingInverts;
           title = 'Add Invertebrates';
           break;
         case 'plants':
-          items = samplePlants;
+          items = plants || [];
+          isLoading = loadingPlants;
           title = 'Add Plants';
           break;
         case 'filter':
-          items = sampleEquipment.filter(e => e.category === 'Filter');
+          items = (equipment || []).filter(e => e.category === 'Filter');
+          isLoading = loadingEquipment;
           title = 'Select Filtration';
           break;
         case 'heater':
-          items = sampleEquipment.filter(e => e.category === 'Heater');
+          items = (equipment || []).filter(e => e.category === 'Heater');
+          isLoading = loadingEquipment;
           title = 'Select Heater';
           break;
         case 'light':
-          items = sampleEquipment.filter(e => e.category === 'Light');
+          items = (equipment || []).filter(e => e.category === 'Light');
+          isLoading = loadingEquipment;
           title = 'Select Lighting';
           break;
         case 'co2':
-          items = sampleEquipment.filter(e => e.category === 'CO2' || e.category === 'AirPump');
+          items = (equipment || []).filter(e => e.category === 'CO2' || e.category === 'AirPump');
+          isLoading = loadingEquipment;
           title = 'Select CO2 & Air';
           break;
         case 'substrate':
-          items = sampleSubstrate;
+          items = substrates || [];
+          isLoading = loadingSubstrates;
           title = 'Select Substrate';
           break;
         case 'other':
-          items = sampleEquipment.filter(e => e.category === 'Other');
+          items = (equipment || []).filter(e => e.category === 'Other');
+          isLoading = loadingEquipment;
           title = 'Select Other Equipment';
           break;
         default:
@@ -93,8 +405,12 @@ export function PartBrowserModal() {
           title = 'Select Parts';
       }
     }
-    return { items, title };
-  }, [activeCategory, isModalOpen]);  // Helper to check if an item is compatible with the current build
+    return { items, title, isLoading };
+  }, [
+    activeCategory, isModalOpen, 
+    tanks, fish, invertebrates, plants, equipment, substrates,
+    loadingTanks, loadingFish, loadingInverts, loadingPlants, loadingEquipment, loadingSubstrates
+  ]);  // Helper to check if an item is compatible with the current build
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const checkItemCompatibility = useCallback((item: any): boolean => {
     // Create a temporary build state with this item added
@@ -201,17 +517,51 @@ export function PartBrowserModal() {
             <div className="w-64 bg-white border-r border-slate-100 p-4 flex flex-col gap-6 overflow-y-auto">
                 <div className="space-y-2">
                     <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                        <Search className="w-4 h-4" /> Search
+                        <Database className="w-4 h-4" /> Source
                     </label>
-                    <input 
-                        type="text"
-                        placeholder="Search parts..."
-                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+                    <div className="flex bg-slate-100 p-1 rounded-lg">
+                        <button 
+                            onClick={() => setSearchSource('local')}
+                            className={`flex-1 py-1 text-sm font-medium rounded-md transition-colors ${searchSource === 'local' ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                            Local
+                        </button>
+                        <button 
+                            onClick={() => { setSearchSource('amazon'); }}
+                            className={`flex-1 py-1 text-sm font-medium rounded-md transition-colors ${searchSource === 'amazon' ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                            Amazon
+                        </button>
+                    </div>
                 </div>
 
+                <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                        <Search className="w-4 h-4" /> Search
+                    </label>
+                    <div className="flex gap-2">
+                        <input 
+                            type="text"
+                            placeholder={searchSource === 'amazon' ? "Search Amazon..." : "Search parts..."}
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter' && searchSource === 'amazon') searchAmazon(searchQuery); }}
+                        />
+                        {searchSource === 'amazon' && (
+                            <button 
+                                onClick={() => searchAmazon(searchQuery)}
+                                className="bg-teal-600 text-white p-2 rounded-lg hover:bg-teal-700 transition-colors"
+                                disabled={isLoadingAmazon}
+                            >
+                                <Search className="w-4 h-4" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {searchSource === 'local' && (
+                    <>
                 <div className="space-y-2">
                     <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                         <Filter className="w-4 h-4" /> Filters
@@ -262,10 +612,68 @@ export function PartBrowserModal() {
                         </select>
                     </div>
                 )}
+                    </>
+                )}
             </div>
 
             {/* Main Content Grid */}
             <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+                {isLoading && searchSource === 'local' ? (
+                    <div className="flex items-center justify-center h-full">
+                        <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
+                    </div>
+                ) : searchSource === 'amazon' ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {amazonResults.map((item) => (
+                            <Card key={item.ASIN} className="flex flex-col gap-3 p-4 transition-all cursor-pointer group bg-white shadow-sm hover:shadow-md border border-slate-100 hover:border-teal-500">
+                                <div className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center border border-slate-100 relative overflow-hidden p-2">
+                                    {item.Images?.Primary?.Large?.URL ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img src={item.Images.Primary.Large.URL} alt={item.ItemInfo?.Title?.DisplayValue} className="w-full h-full object-contain" />
+                                    ) : (
+                                        <span className="text-slate-400 text-sm font-medium">No Image</span>
+                                    )}
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-lg text-slate-800 group-hover:text-teal-700 transition-colors truncate" title={item.ItemInfo?.Title?.DisplayValue}>
+                                        {item.ItemInfo?.Title?.DisplayValue || 'Unknown Item'}
+                                    </h3>
+                                    <p className="text-xs text-slate-500 italic truncate">Amazon Product</p>
+                                    
+                                    <div className="mt-4 flex items-center justify-between gap-2">
+                                        <span className="font-mono text-teal-700 font-bold flex-1">
+                                            {item.Offers?.Listings?.[0]?.Price?.DisplayAmount || 'N/A'}
+                                        </span>
+                                        <button 
+                                            onClick={() => handleAmazonSave(item)}
+                                            className="bg-white border border-teal-600 text-teal-600 hover:bg-teal-50 px-3 py-1 rounded text-sm transition-colors shadow-sm"
+                                            title="Save to Options"
+                                        >
+                                            Save
+                                        </button>
+                                        <button 
+                                            onClick={() => handleAmazonAdd(item)}
+                                            className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1 rounded text-sm transition-colors shadow-sm"
+                                        >
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+                            </Card>
+                        ))}
+                        {isLoadingAmazon && (
+                            <div className="col-span-full text-center py-12">
+                                <p className="text-slate-500 animate-pulse">Searching Amazon...</p>
+                            </div>
+                        )}
+                        {!isLoadingAmazon && amazonResults.length === 0 && (
+                            <div className="col-span-full text-center text-slate-400 py-12">
+                                <p className="text-lg">No Amazon results found.</p>
+                                <p className="text-sm mt-2">Try a different search term.</p>
+                            </div>
+                        )}
+                    </div>
+                ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {filteredItems.map((item) => {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -331,6 +739,7 @@ export function PartBrowserModal() {
                     </div>
                     )}
                 </div>
+                )}
             </div>
         </div>
       </div>

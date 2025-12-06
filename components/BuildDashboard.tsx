@@ -1,7 +1,7 @@
 'use client';
 
 import { useBuildStore } from '@/store/useBuildStore';
-import { useSavedBuildsStore } from '@/store/useSavedBuildsStore';
+import { useSavedBuilds } from '@/hooks/useSavedBuilds';
 import { useUIStore } from '@/store/useUIStore';
 import { Card } from '@/components/ui/Card';
 import { CompatibilityBadge } from '@/components/ui/CompatibilityBadge';
@@ -12,22 +12,24 @@ import { StockingVisualizer } from '@/components/StockingVisualizer';
 import { MaintenanceWidget } from '@/components/MaintenanceWidget';
 import { CyclingGuide } from '@/components/CyclingGuide';
 import { BuildWizardModal } from '@/components/BuildWizardModal';
-import { Save, Edit2, Wand2 } from 'lucide-react';
+import { Save, Edit2, Wand2, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { AquariumBuild } from '@/types';
 
 export function BuildDashboard() {
   const build = useBuildStore();
   const { openModal } = useUIStore();
-  const { saveBuild } = useSavedBuildsStore();
+  const { saveBuild } = useSavedBuilds();
   const { tank, warnings, totalCost } = build;
   const [isEditingName, setIsEditingName] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const status = warnings.some(w => w.severity === 'error') ? 'error' :
                  warnings.some(w => w.severity === 'warning') ? 'warning' : 'ok';
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setIsSaving(true);
     const buildData: AquariumBuild = {
         id: build.id,
         name: build.name,
@@ -43,9 +45,11 @@ export function BuildDashboard() {
         warnings: build.warnings,
         targetParams: build.targetParams
     };
-    saveBuild(buildData);
-    alert('Build saved successfully!');
+    await saveBuild(buildData);
+    setIsSaving(false);
+    alert('Build saved!');
   };
+
 
   return (
     <div className="p-6 space-y-6 w-full">
@@ -68,8 +72,13 @@ export function BuildDashboard() {
                 </h1>
             )}
         </div>
-        <button onClick={handleSave} className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors">
-            <Save className="w-4 h-4" /> Save Build
+        <button 
+            onClick={handleSave} 
+            disabled={isSaving}
+            className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {isSaving ? 'Saving...' : 'Save Build'}
         </button>
       </div>
 
