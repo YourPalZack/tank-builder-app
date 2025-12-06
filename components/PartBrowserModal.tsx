@@ -39,6 +39,8 @@ export function PartBrowserModal() {
   const [showCompatibleOnly, setShowCompatibleOnly] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number>(1000);
   const [selectedCareLevel, setSelectedCareLevel] = useState<string>('all');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [detailItem, setDetailItem] = useState<any>(null);
 
   const { items, title } = useMemo(() => {
     let items: (Tank | Fish | Plant | Invertebrate | Equipment | Substrate)[] = [];
@@ -303,12 +305,20 @@ export function PartBrowserModal() {
                         
                         <div className="mt-4 flex items-center justify-between">
                             <span className="font-mono text-teal-700 font-bold">${item.price}</span>
-                            <button 
-                            onClick={() => handleAdd(item)}
-                            className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1 rounded text-sm transition-colors shadow-sm"
-                            >
-                            Add
-                            </button>
+                            <div className="flex gap-2">
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); setDetailItem(item); }}
+                                    className="text-slate-500 hover:text-teal-600 text-sm px-2 py-1"
+                                >
+                                    Details
+                                </button>
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); handleAdd(item); }}
+                                    className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1 rounded text-sm transition-colors shadow-sm"
+                                >
+                                    Add
+                                </button>
+                            </div>
                         </div>
                         </div>
                     </Card>
