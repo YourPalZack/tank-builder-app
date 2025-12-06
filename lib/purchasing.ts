@@ -1,6 +1,6 @@
 import { VENDORS } from './vendors';
 import type { PurchaseLink } from '@/types/purchasing';
-import type { Equipment, Fish, Plant, Substrate, Invertebrate } from '@/types';
+import type { Equipment, Fish, Plant, Substrate, Invertebrate, Tank } from '@/types';
 
 const getAmazonTag = () => process.env.NEXT_PUBLIC_AMAZON_TAG;
 
@@ -87,6 +87,19 @@ export const getPlantPurchaseLinks = (item: Plant): PurchaseLink[] => {
 
 export const getSubstratePurchaseLinks = (item: Substrate): PurchaseLink[] => {
   const query = `${item.brand || ''} ${item.name} substrate`.trim();
+  const links: PurchaseLink[] = [];
+
+  links.push({
+    vendor: VENDORS.AMAZON,
+    url: buildAmazonSearchUrl(query),
+    affiliate: true,
+  });
+
+  return item.purchaseLinks?.length ? item.purchaseLinks : links;
+};
+
+export const getTankPurchaseLinks = (item: Tank): PurchaseLink[] => {
+  const query = `${item.brand || ''} ${item.name} aquarium tank`.trim();
   const links: PurchaseLink[] = [];
 
   links.push({

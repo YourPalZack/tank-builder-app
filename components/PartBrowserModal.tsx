@@ -15,6 +15,7 @@ import { Card } from '@/components/ui/Card';
 import { Tank, Fish, Plant, Invertebrate, Equipment, Substrate, AquariumBuild } from '@/types';
 import { useState, useMemo, useCallback } from 'react';
 import { checkCompatibility } from '@/lib/compatibility';
+import { ItemDetailModal } from './ItemDetailModal';
 
 export function PartBrowserModal() {
   const { isModalOpen, activeCategory, closeModal } = useUIStore();
