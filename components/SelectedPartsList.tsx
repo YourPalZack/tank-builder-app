@@ -10,6 +10,7 @@ export function SelectedPartsList() {
     removeFish, updateFishQuantity,
     removeInvert, updateInvertQuantity,
     removePlant, updatePlantQuantity,
+    setTank, setSubstrate
   } = useBuildStore();
 
   const hasItems = tank || fish.length > 0 || inverts.length > 0 || plants.length > 0 || substrate;
@@ -40,8 +41,16 @@ export function SelectedPartsList() {
                 <p className="text-sm text-slate-500">{tank.dimensions.length}&quot; x {tank.dimensions.width}&quot; x {tank.dimensions.height}&quot;</p>
               </div>
             </div>
-            <div className="font-mono font-medium text-slate-700">
-              ${tank.price}
+            <div className="flex items-center gap-4">
+              <div className="font-mono font-medium text-slate-700">
+                ${tank.price}
+              </div>
+              <button 
+                onClick={() => setTank(null)}
+                className="text-slate-400 hover:text-red-500 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </section>
@@ -216,8 +225,16 @@ export function SelectedPartsList() {
                 <p className="text-sm text-slate-500">{substrate.type}</p>
               </div>
             </div>
-            <div className="font-mono font-medium text-slate-700">
-              ${substrate.price}
+            <div className="flex items-center gap-4">
+              <div className="font-mono font-medium text-slate-700">
+                ${substrate.price}
+              </div>
+              <button 
+                onClick={() => setSubstrate(null)}
+                className="text-slate-400 hover:text-red-500 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </section>

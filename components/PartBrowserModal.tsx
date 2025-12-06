@@ -10,13 +10,15 @@ import {
   sampleEquipment, 
   sampleSubstrate 
 } from '@/data/sampleData';
-import { X } from 'lucide-react';
+import { X, Search } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Tank, Fish, Plant, Invertebrate, Equipment, Substrate } from '@/types';
+import { useState } from 'react';
 
 export function PartBrowserModal() {
   const { isModalOpen, activeCategory, closeModal } = useUIStore();
   const { setTank, addFish, addPlant, addInvert, setEquipment, setSubstrate } = useBuildStore();
+  const [searchQuery, setSearchQuery] = useState('');
 
   if (!isModalOpen) return null;
 
@@ -69,6 +71,14 @@ export function PartBrowserModal() {
       title = 'Select Parts';
   }
 
+  const filteredItems = items.filter(item => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const anyItem = item as any;
+    const name = anyItem.name || anyItem.commonName || '';
+    return name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleAdd = (item: any) => {
     switch (activeCategory) {
       case 'tank':
@@ -103,17 +113,33 @@ export function PartBrowserModal() {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
       <div className="w-full max-w-4xl h-[80vh] bg-white border border-slate-200 rounded-2xl flex flex-col overflow-hidden shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50">
-          <h2 className="text-xl font-bold font-outfit text-slate-900">{title}</h2>
-          <button onClick={closeModal} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
-            <X className="w-6 h-6 text-slate-500" />
-          </button>
+        <div className="flex flex-col border-b border-slate-100 bg-slate-50">
+            <div className="flex items-center justify-between p-4">
+                <h2 className="text-xl font-bold font-outfit text-slate-900">{title}</h2>
+                <button onClick={closeModal} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
+                    <X className="w-6 h-6 text-slate-500" />
+                </button>
+            </div>
+            <div className="px-4 pb-4">
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input 
+                        type="text"
+                        placeholder="Search parts..."
+                        className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        autoFocus
+                    />
+                </div>
+            </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {items.map((item) => {
+            {filteredItems.map((item) => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const anyItem = item as any;
               return (
               <Card key={item.id} className="flex flex-col gap-3 hover:border-teal-500 transition-colors cursor-pointer group bg-white shadow-sm hover:shadow-md">
@@ -148,9 +174,9 @@ export function PartBrowserModal() {
               </Card>
             );
             })}
-            {items.length === 0 && (
+            {filteredItems.length === 0 && (
               <div className="col-span-full text-center text-slate-400 py-12">
-                No items found in this category yet.
+                No items found matching &quot;{searchQuery}&quot;.
               </div>
             )}
           </div>

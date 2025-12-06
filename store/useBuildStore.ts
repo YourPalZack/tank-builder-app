@@ -4,7 +4,7 @@ import { AquariumBuild, Tank, Fish, Invertebrate, Plant, Equipment, Substrate, E
 import { checkCompatibility } from '@/lib/compatibility';
 
 interface BuildState extends AquariumBuild {
-  setTank: (tank: Tank) => void;
+  setTank: (tank: Tank | null) => void;
   addFish: (fish: Fish, quantity?: number) => void;
   removeFish: (fishId: string) => void;
   updateFishQuantity: (fishId: string, quantity: number) => void;
@@ -18,7 +18,7 @@ interface BuildState extends AquariumBuild {
   updatePlantQuantity: (plantId: string, quantity: number) => void;
 
   setEquipment: (category: EquipmentCategory, item: Equipment) => void;
-  setSubstrate: (substrate: Substrate) => void;
+  setSubstrate: (substrate: Substrate | null) => void;
   resetBuild: () => void;
   recalculate: () => void;
 }
@@ -100,10 +100,12 @@ export const useBuildStore = create<BuildState>()(
         set({ tank });
         // Recalculate substrate bags if substrate exists
         const sub = get().substrate;
-        if (sub) {
+        if (sub && tank) {
              const needed = sub.poundsPerGallon * tank.volumeGallons;
              const bags = Math.ceil(needed / sub.bagSizePounds);
              set({ substrateBags: bags });
+        } else {
+             set({ substrateBags: 0 });
         }
         get().recalculate();
       },
