@@ -31,7 +31,7 @@ export function SelectedPartsList() {
           <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
             <Box className="w-4 h-4" /> Tank
           </h3>
-          <div className="bg-white border border-slate-200 rounded-lg p-4 flex items-center justify-between shadow-sm">
+          <Card className="p-4 flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-slate-100 rounded-md flex items-center justify-center text-xs text-slate-400">
                 Img
@@ -52,7 +52,7 @@ export function SelectedPartsList() {
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
-          </div>
+          </Card>
         </section>
       )}
 
