@@ -270,7 +270,7 @@ export function PartBrowserModal() {
                     const isCompatible = checkItemCompatibility(item);
 
                     return (
-                    <Card key={item.id} className={`flex flex-col gap-3 transition-all cursor-pointer group bg-white shadow-sm hover:shadow-md border ${!isCompatible && !showCompatibleOnly ? 'border-red-200 opacity-80' : 'border-slate-100 hover:border-teal-500'}`}>
+                    <Card key={item.id} className={`flex flex-col gap-3 p-4 transition-all cursor-pointer group bg-white shadow-sm hover:shadow-md border ${!isCompatible && !showCompatibleOnly ? 'border-red-200 opacity-80' : 'border-slate-100 hover:border-teal-500'}`}>
                         <div className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center border border-slate-100 relative overflow-hidden">
                             {/* Placeholder Image */}
                             <span className="text-slate-400 text-sm font-medium">{anyItem.name || anyItem.commonName}</span>
