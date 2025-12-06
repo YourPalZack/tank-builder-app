@@ -1,6 +1,7 @@
 'use client';
 
 import { useBuildStore } from '@/store/useBuildStore';
+import { Card } from '@/components/ui/Card';
 import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
 export default function CompatibilityWidget() {
@@ -13,7 +14,7 @@ export default function CompatibilityWidget() {
   const StatusIcon = errorCount > 0 ? XCircle : warningCount > 0 ? AlertTriangle : CheckCircle;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+    <Card className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-heading font-semibold text-slate-800">Compatibility</h3>
         <div className={`flex items-center gap-2 ${statusColor}`}>
@@ -89,6 +90,6 @@ export default function CompatibilityWidget() {
           </div>
         </div>
       )}
-    </div>
+    </Card>
   );
 }
