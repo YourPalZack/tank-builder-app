@@ -1,8 +1,9 @@
 'use client';
 
 import { useBuildStore } from '@/store/useBuildStore';
-import { Trash2, Plus, Minus, Box, Fish, Sprout, Shell, Layers } from 'lucide-react';
+import { Trash2, Plus, Minus, Box, Fish, Sprout, Shell, Layers, ShoppingBag } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
+import Link from 'next/link';
 
 export function SelectedPartsList() {
   const { 
@@ -25,6 +26,12 @@ export function SelectedPartsList() {
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <Link href="/shopping-list" className="flex items-center gap-2 text-sm font-medium text-teal-600 hover:text-teal-700">
+           <ShoppingBag className="w-4 h-4" /> View Shopping List
+        </Link>
+      </div>
+
       {/* Tank Section */}
       {tank && (
         <section>
