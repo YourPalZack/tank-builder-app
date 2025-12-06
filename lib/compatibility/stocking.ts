@@ -4,7 +4,7 @@ export function calculateStockingLevel(
   tank: Tank | null,
   fish: { item: Fish; quantity: number }[],
   inverts: { item: Invertebrate; quantity: number }[],
-  filter: Equipment | null
+  _filter: Equipment | null
 ): number {
   if (!tank) return 0;
 
