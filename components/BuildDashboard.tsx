@@ -1,22 +1,72 @@
 'use client';
 
 import { useBuildStore } from '@/store/useBuildStore';
+import { useSavedBuildsStore } from '@/store/useSavedBuildsStore';
 import { Card } from '@/components/ui/Card';
 import { CompatibilityBadge } from '@/components/ui/CompatibilityBadge';
 import CompatibilityWidget from '@/components/CompatibilityWidget';
 import { SelectedPartsList } from '@/components/SelectedPartsList';
 import { WaterParameterVisualizer } from '@/components/WaterParameterVisualizer';
 import { StockingVisualizer } from '@/components/StockingVisualizer';
+import { Save, Edit2 } from 'lucide-react';
+import { useState } from 'react';
+import { AquariumBuild } from '@/types';
 
 export function BuildDashboard() {
   const build = useBuildStore();
+  const { saveBuild } = useSavedBuildsStore();
   const { tank, warnings, totalCost } = build;
+  const [isEditingName, setIsEditingName] = useState(false);
 
   const status = warnings.some(w => w.severity === 'error') ? 'error' :
                  warnings.some(w => w.severity === 'warning') ? 'warning' : 'ok';
 
+  const handleSave = () => {
+    const buildData: AquariumBuild = {
+        id: build.id,
+        name: build.name,
+        tank: build.tank,
+        fish: build.fish,
+        inverts: build.inverts,
+        plants: build.plants,
+        equipment: build.equipment,
+        substrate: build.substrate,
+        substrateBags: build.substrateBags,
+        totalCost: build.totalCost,
+        stockingLevel: build.stockingLevel,
+        warnings: build.warnings,
+        targetParams: build.targetParams
+    };
+    saveBuild(buildData);
+    alert('Build saved successfully!');
+  };
+
   return (
     <div className="p-6 space-y-6 w-full">
+      {/* Header Section */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-2">
+            {isEditingName ? (
+                <input 
+                    type="text" 
+                    value={build.name} 
+                    onChange={(e) => build.setName(e.target.value)}
+                    onBlur={() => setIsEditingName(false)}
+                    onKeyDown={(e) => e.key === 'Enter' && setIsEditingName(false)}
+                    className="text-2xl font-bold font-outfit text-slate-900 bg-transparent border-b-2 border-teal-500 focus:outline-none"
+                    autoFocus
+                />
+            ) : (
+                <h1 className="text-2xl font-bold font-outfit text-slate-900 flex items-center gap-2 cursor-pointer hover:text-teal-700" onClick={() => setIsEditingName(true)}>
+                    {build.name} <Edit2 className="w-4 h-4 text-slate-400" />
+                </h1>
+            )}
+        </div>
+        <button onClick={handleSave} className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors">
+            <Save className="w-4 h-4" /> Save Build
+        </button>
+      </div>
+
       {/* Top Section: Tank & Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">

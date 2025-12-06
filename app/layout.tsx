@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
+import { Header } from "@/components/Header";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -27,7 +28,10 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${sourceSans.variable} antialiased bg-slate-50 text-slate-900`}
       >
-        {children}
+        <Header />
+        <main className="min-h-[calc(100vh-4rem)]">
+          {children}
+        </main>
       </body>
     </html>
   );
