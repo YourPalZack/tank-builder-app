@@ -6,6 +6,7 @@ import { CompatibilityBadge } from '@/components/ui/CompatibilityBadge';
 import CompatibilityWidget from '@/components/CompatibilityWidget';
 import { SelectedPartsList } from '@/components/SelectedPartsList';
 import { WaterParameterVisualizer } from '@/components/WaterParameterVisualizer';
+import { StockingVisualizer } from '@/components/StockingVisualizer';
 
 export function BuildDashboard() {
   const build = useBuildStore();
@@ -55,6 +56,7 @@ export function BuildDashboard() {
         <div className="space-y-6">
             <CompatibilityWidget />
             <WaterParameterVisualizer />
+            <StockingVisualizer />
             
             <Card className="p-4 space-y-4">
                 <h3 className="font-heading font-semibold text-slate-800">Build Summary</h3>
