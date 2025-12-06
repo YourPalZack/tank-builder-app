@@ -8,6 +8,8 @@ import CompatibilityWidget from '@/components/CompatibilityWidget';
 import { SelectedPartsList } from '@/components/SelectedPartsList';
 import { WaterParameterVisualizer } from '@/components/WaterParameterVisualizer';
 import { StockingVisualizer } from '@/components/StockingVisualizer';
+import { MaintenanceWidget } from '@/components/MaintenanceWidget';
+import { CyclingGuide } from '@/components/CyclingGuide';
 import { Save, Edit2 } from 'lucide-react';
 import { useState } from 'react';
 import { AquariumBuild } from '@/types';
@@ -107,6 +109,8 @@ export function BuildDashboard() {
             <CompatibilityWidget />
             <WaterParameterVisualizer />
             <StockingVisualizer />
+            <MaintenanceWidget />
+            <CyclingGuide />
             
             <Card className="p-4 space-y-4">
                 <h3 className="font-heading font-semibold text-slate-800">Build Summary</h3>
