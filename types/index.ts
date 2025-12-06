@@ -48,6 +48,7 @@ export interface Fish {
   preyTo: string[];
   nipsAtFins: boolean;
   incompatibleWithLongFinned: boolean;
+  isLongFinned?: boolean;
   careLevel: CareLevel;
   diet: Diet;
   specialNeeds?: string;
