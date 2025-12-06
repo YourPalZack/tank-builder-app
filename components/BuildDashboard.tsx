@@ -21,7 +21,7 @@ export function BuildDashboard() {
             <>
               <div className="text-center z-10">
                 <h2 className="text-2xl font-bold font-outfit">{tank.name}</h2>
-                <p className="text-gray-400">{tank.dimensions.length}" x {tank.dimensions.width}" x {tank.dimensions.height}" • {tank.volumeGallons} Gallons</p>
+                <p className="text-gray-400">{tank.dimensions.length}&quot; x {tank.dimensions.width}&quot; x {tank.dimensions.height}&quot; • {tank.volumeGallons} Gallons</p>
               </div>
               {/* Placeholder for Tank Image */}
               <div className="mt-8 w-3/4 h-48 border-2 border-white/20 rounded-lg bg-white/5 flex items-center justify-center">
