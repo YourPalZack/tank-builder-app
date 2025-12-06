@@ -42,9 +42,9 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-64 border-r border-white/10 bg-ocean-900/30 hidden md:block h-[calc(100vh-4rem)] overflow-y-auto sticky top-16">
+    <aside className="w-64 border-r border-slate-200 bg-white hidden md:block h-[calc(100vh-4rem)] overflow-y-auto sticky top-16">
       <div className="p-4 space-y-2">
-        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 px-2">
+        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-2">
           Build Components
         </h2>
         {categories.map((cat) => {
@@ -56,15 +56,15 @@ export function Sidebar() {
               onClick={() => openModal(cat.id)}
               className={cn(
                 "w-full flex items-center justify-between p-3 rounded-lg transition-colors text-left group",
-                "hover:bg-white/5 text-gray-300 hover:text-white"
+                "hover:bg-slate-100 text-slate-600 hover:text-slate-900"
               )}
             >
               <div className="flex items-center gap-3">
-                <Icon className="h-5 w-5 text-teal-500/70 group-hover:text-teal-400" />
+                <Icon className="h-5 w-5 text-teal-600/70 group-hover:text-teal-600" />
                 <span className="font-medium">{cat.label}</span>
               </div>
               {count > 0 && (
-                <span className="bg-teal-500/20 text-teal-300 text-xs py-0.5 px-2 rounded-full">
+                <span className="bg-teal-100 text-teal-700 text-xs py-0.5 px-2 rounded-full">
                   {count}
                 </span>
               )}
