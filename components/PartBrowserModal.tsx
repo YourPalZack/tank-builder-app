@@ -39,58 +39,59 @@ export function PartBrowserModal() {
   const [maxPrice, setMaxPrice] = useState<number>(1000);
   const [selectedCareLevel, setSelectedCareLevel] = useState<string>('all');
 
-  let items: (Tank | Fish | Plant | Invertebrate | Equipment | Substrate)[] = [];
-  let title = '';
+  const { items, title } = useMemo(() => {
+    let items: (Tank | Fish | Plant | Invertebrate | Equipment | Substrate)[] = [];
+    let title = '';
 
-  if (isModalOpen) {
-    switch (activeCategory) {
-    case 'tank':
-      items = sampleTanks;
-      title = 'Select a Tank';
-      break;
-    case 'fish':
-      items = sampleFish;
-      title = 'Add Fish';
-      break;
-    case 'inverts':
-      items = sampleInvertebrates;
-      title = 'Add Invertebrates';
-      break;
-    case 'plants':
-      items = samplePlants;
-      title = 'Add Plants';
-      break;
-    case 'filter':
-      items = sampleEquipment.filter(e => e.category === 'Filter');
-      title = 'Select Filtration';
-      break;
-    case 'heater':
-      items = sampleEquipment.filter(e => e.category === 'Heater');
-      title = 'Select Heater';
-      break;
-    case 'light':
-      items = sampleEquipment.filter(e => e.category === 'Light');
-      title = 'Select Lighting';
-      break;
-    case 'co2':
-      items = sampleEquipment.filter(e => e.category === 'CO2' || e.category === 'AirPump');
-      title = 'Select CO2 & Air';
-      break;
-    case 'substrate':
-      items = sampleSubstrate;
-      title = 'Select Substrate';
-      break;
-    case 'other':
-      items = sampleEquipment.filter(e => e.category === 'Other');
-      title = 'Select Other Equipment';
-      break;
-    default:
-      items = [];
-      title = 'Select Parts';
-  }
-  }
-
-  // Helper to check if an item is compatible with the current build
+    if (isModalOpen) {
+      switch (activeCategory) {
+        case 'tank':
+          items = sampleTanks;
+          title = 'Select a Tank';
+          break;
+        case 'fish':
+          items = sampleFish;
+          title = 'Add Fish';
+          break;
+        case 'inverts':
+          items = sampleInvertebrates;
+          title = 'Add Invertebrates';
+          break;
+        case 'plants':
+          items = samplePlants;
+          title = 'Add Plants';
+          break;
+        case 'filter':
+          items = sampleEquipment.filter(e => e.category === 'Filter');
+          title = 'Select Filtration';
+          break;
+        case 'heater':
+          items = sampleEquipment.filter(e => e.category === 'Heater');
+          title = 'Select Heater';
+          break;
+        case 'light':
+          items = sampleEquipment.filter(e => e.category === 'Light');
+          title = 'Select Lighting';
+          break;
+        case 'co2':
+          items = sampleEquipment.filter(e => e.category === 'CO2' || e.category === 'AirPump');
+          title = 'Select CO2 & Air';
+          break;
+        case 'substrate':
+          items = sampleSubstrate;
+          title = 'Select Substrate';
+          break;
+        case 'other':
+          items = sampleEquipment.filter(e => e.category === 'Other');
+          title = 'Select Other Equipment';
+          break;
+        default:
+          items = [];
+          title = 'Select Parts';
+      }
+    }
+    return { items, title };
+  }, [activeCategory, isModalOpen]);  // Helper to check if an item is compatible with the current build
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const checkItemCompatibility = useCallback((item: any): boolean => {
     // Create a temporary build state with this item added
