@@ -93,7 +93,10 @@ export function BuildDashboard() {
               <div className="text-center text-slate-400">
                 <p className="text-lg">No Tank Selected</p>
                 <div className="flex gap-4 justify-center mt-4">
-                    <button className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors">
+                    <button 
+                        onClick={() => openModal('tanks')}
+                        className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors"
+                    >
                         Select a Tank
                     </button>
                     <button 
