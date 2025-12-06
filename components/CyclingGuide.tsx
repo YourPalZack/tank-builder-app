@@ -69,7 +69,7 @@ export function CyclingGuide() {
       
       <div className="bg-yellow-50 p-3 rounded text-xs text-yellow-800 flex gap-2 items-start">
         <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
-        <span>Always test water parameters (Ammonia: 0, Nitrite: 0, Nitrate: <20ppm) before adding new fish.</span>
+        <span>Always test water parameters (Ammonia: 0, Nitrite: 0, Nitrate: &lt;20ppm) before adding new fish.</span>
       </div>
     </Card>
   );
