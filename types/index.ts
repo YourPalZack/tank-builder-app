@@ -1,3 +1,5 @@
+import { PurchasableItem } from './purchasing';
+
 export type WaterParams = {
   tempMin: number;
   tempMax: number;
@@ -7,7 +9,7 @@ export type WaterParams = {
   hardnessMax: number;
 };
 
-export interface Tank {
+export interface Tank extends PurchasableItem {
   id: string;
   name: string;
   brand?: string;
@@ -30,7 +32,7 @@ export type Temperament = 'peaceful' | 'semi-aggressive' | 'aggressive';
 export type Diet = 'carnivore' | 'herbivore' | 'omnivore';
 export type CareLevel = 'beginner' | 'intermediate' | 'expert';
 
-export interface Fish {
+export interface Fish extends PurchasableItem {
   id: string;
   commonName: string;
   scientificName: string;
@@ -65,7 +67,7 @@ export interface Invertebrate extends Omit<Fish, 'nipsAtFins' | 'incompatibleWit
 export type LightRequirement = 'low' | 'medium' | 'high' | 'very-high';
 export type PlantPlacement = 'foreground' | 'midground' | 'background' | 'floating';
 
-export interface Plant {
+export interface Plant extends PurchasableItem {
   id: string;
   commonName: string;
   scientificName: string;
@@ -85,7 +87,7 @@ export interface Plant {
 
 export type EquipmentCategory = 'Filter' | 'Heater' | 'Light' | 'CO2' | 'AirPump' | 'Other';
 
-export interface Equipment {
+export interface Equipment extends PurchasableItem {
   id: string;
   name: string;
   brand?: string;
@@ -103,7 +105,7 @@ export interface Equipment {
   filterType?: string; // Filter
 }
 
-export interface Substrate {
+export interface Substrate extends PurchasableItem {
   id: string;
   name: string;
   brand?: string;
