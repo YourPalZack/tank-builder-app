@@ -3,9 +3,10 @@
 import { useBuildStore } from '@/store/useBuildStore';
 import { useUIStore } from '@/store/useUIStore';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 import { 
   Box, Fish, Shell, Sprout, Filter, Thermometer, Lightbulb, 
-  Wind, Layers, Wrench 
+  Wind, Layers, Wrench, HelpCircle 
 } from 'lucide-react';
 
 const categories = [
@@ -71,6 +72,16 @@ export function Sidebar() {
             </button>
           );
         })}
+      </div>
+
+      <div className="p-4 border-t border-slate-100">
+        <Link 
+          href="/how-it-works"
+          className="flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+        >
+          <HelpCircle className="h-5 w-5 text-teal-600/70" />
+          <span className="font-medium">How it Works</span>
+        </Link>
       </div>
     </aside>
   );
