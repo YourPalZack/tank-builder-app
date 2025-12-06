@@ -1,0 +1,74 @@
+'use client';
+
+import { useBuildStore } from '@/store/useBuildStore';
+import { cn } from '@/lib/utils';
+import { 
+  Box, Fish, Shell, Sprout, Filter, Thermometer, Lightbulb, 
+  Wind, Layers, Wrench 
+} from 'lucide-react';
+
+const categories = [
+  { id: 'tank', label: 'Tank', icon: Box },
+  { id: 'fish', label: 'Fish', icon: Fish },
+  { id: 'inverts', label: 'Invertebrates', icon: Shell },
+  { id: 'plants', label: 'Plants', icon: Sprout },
+  { id: 'filter', label: 'Filtration', icon: Filter },
+  { id: 'heater', label: 'Heating', icon: Thermometer },
+  { id: 'light', label: 'Lighting', icon: Lightbulb },
+  { id: 'co2', label: 'CO2 & Air', icon: Wind },
+  { id: 'substrate', label: 'Substrate', icon: Layers },
+  { id: 'other', label: 'Other', icon: Wrench },
+];
+
+export function Sidebar() {
+  const build = useBuildStore();
+
+  const getCount = (id: string) => {
+    switch (id) {
+      case 'tank': return build.tank ? 1 : 0;
+      case 'fish': return build.fish.length;
+      case 'inverts': return build.inverts.length;
+      case 'plants': return build.plants.length;
+      case 'filter': return build.equipment.filter ? 1 : 0;
+      case 'heater': return build.equipment.heater ? 1 : 0;
+      case 'light': return build.equipment.light ? 1 : 0;
+      case 'co2': return (build.equipment.co2 ? 1 : 0) + (build.equipment.airPump ? 1 : 0);
+      case 'substrate': return build.substrate ? 1 : 0;
+      case 'other': return build.equipment.other.length;
+      default: return 0;
+    }
+  };
+
+  return (
+    <aside className="w-64 border-r border-white/10 bg-ocean-900/30 hidden md:block h-[calc(100vh-4rem)] overflow-y-auto sticky top-16">
+      <div className="p-4 space-y-2">
+        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 px-2">
+          Build Components
+        </h2>
+        {categories.map((cat) => {
+          const count = getCount(cat.id);
+          const Icon = cat.icon;
+          return (
+            <button
+              key={cat.id}
+              className={cn(
+                "w-full flex items-center justify-between p-3 rounded-lg transition-colors text-left group",
+                "hover:bg-white/5 text-gray-300 hover:text-white"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <Icon className="h-5 w-5 text-teal-500/70 group-hover:text-teal-400" />
+                <span className="font-medium">{cat.label}</span>
+              </div>
+              {count > 0 && (
+                <span className="bg-teal-500/20 text-teal-300 text-xs py-0.5 px-2 rounded-full">
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </aside>
+  );
+}
