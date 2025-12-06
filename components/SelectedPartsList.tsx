@@ -166,7 +166,7 @@ export function SelectedPartsList() {
           </h3>
           <div className="space-y-2">
             {plants.map((item) => (
-              <div key={item.item.id} className="bg-white border border-slate-200 rounded-lg p-3 flex items-center justify-between shadow-sm">
+              <Card key={item.item.id} className="p-3 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-slate-100 rounded-md flex items-center justify-center text-xs text-slate-400">
                     Img
@@ -203,7 +203,7 @@ export function SelectedPartsList() {
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </section>
