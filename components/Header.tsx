@@ -2,34 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Fish, User, Menu, LogOut } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
-import { AuthModal } from './AuthModal';
-import { User as SupabaseUser } from '@supabase/supabase-js';
+import { Fish, Menu } from 'lucide-react';
+import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
 export function Header() {
   const pathname = usePathname();
-  const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-
-  useEffect(() => {
-    // Check active session
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-    });
-
-    // Listen for changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
@@ -61,34 +38,22 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          {user ? (
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-slate-600 hidden md:inline-block">
-                {user.email}
-              </span>
-              <button 
-                onClick={handleSignOut}
-                className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-600 hover:text-red-600" 
-                title="Sign Out"
-              >
-                <LogOut className="h-5 w-5" />
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors">
+                Sign In
               </button>
-            </div>
-          ) : (
-            <button 
-              onClick={() => setIsAuthModalOpen(true)}
-              className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors"
-            >
-              Sign In
-            </button>
-          )}
+            </SignInButton>
+          </SignedOut>
           
           <button className="md:hidden p-2 hover:bg-slate-100 rounded-full" aria-label="Menu">
             <Menu className="h-5 w-5 text-slate-600" />
           </button>
         </div>
       </div>
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </header>
   );
 }

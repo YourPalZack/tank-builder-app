@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit, Source_Sans_3 } from "next/font/google";
+import { ClerkProvider } from '@clerk/nextjs';
 import "./globals.css";
 import { Header } from "@/components/Header";
 
@@ -24,15 +25,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${outfit.variable} ${sourceSans.variable} antialiased bg-slate-50 text-slate-900`}
-      >
-        <Header />
-        <main className="min-h-[calc(100vh-4rem)]">
-          {children}
-        </main>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body
+          className={`${outfit.variable} ${sourceSans.variable} antialiased bg-slate-50 text-slate-900`}
+        >
+          <Header />
+          <main className="min-h-screen">
+            {children}
+          </main>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
