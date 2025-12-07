@@ -10,7 +10,15 @@ import {
   useEquipment, 
   useSubstrates 
 } from '@/hooks/useCatalog';
-import { supabase } from '@/lib/supabase';
+import { useUser } from '@clerk/nextjs';
+import { 
+  saveAmazonTank, 
+  saveAmazonFish, 
+  saveAmazonInvertebrate, 
+  saveAmazonPlant, 
+  saveAmazonEquipment, 
+  saveAmazonSubstrate 
+} from '@/lib/actions/amazon';
 import { X, Search, Filter, AlertTriangle, CheckCircle, Loader2, Database } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Tank, Fish, Plant, Invertebrate, Equipment, Substrate, AquariumBuild, EquipmentCategory } from '@/types';
@@ -29,6 +37,7 @@ import {
 
 export function PartBrowserModal() {
   const { isModalOpen, activeCategory, closeModal } = useUIStore();
+  const { user } = useUser();
   const buildStore = useBuildStore();
   
   // Fetch data from Supabase
@@ -159,187 +168,61 @@ export function PartBrowserModal() {
   };
 
   const handleAmazonSave = async (item: AmazonItem) => {
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       alert('Please log in to save custom parts.');
       return;
     }
 
-    const userId = user.id;
-    let error = null;
+    try {
+      switch (activeCategory) {
+        case 'tank': {
+          const tank = mapAmazonItemToTank(item);
+          await saveAmazonTank(tank);
+          break;
+        }
+        case 'fish': {
+          const fish = mapAmazonItemToFish(item);
+          await saveAmazonFish(fish);
+          break;
+        }
+        case 'inverts': {
+          const invert = mapAmazonItemToInvertebrate(item);
+          await saveAmazonInvertebrate(invert);
+          break;
+        }
+        case 'plants': {
+          const plant = mapAmazonItemToPlant(item);
+          await saveAmazonPlant(plant);
+          break;
+        }
+        case 'filter':
+        case 'heater':
+        case 'light':
+        case 'co2':
+        case 'other': {
+          let eqCat: EquipmentCategory = 'Other';
+          if (activeCategory === 'filter') eqCat = 'Filter';
+          if (activeCategory === 'heater') eqCat = 'Heater';
+          if (activeCategory === 'light') eqCat = 'Light';
+          if (activeCategory === 'co2') eqCat = 'CO2';
+          
+          const equip = mapAmazonItemToEquipment(item, eqCat);
+          await saveAmazonEquipment(equip);
+          break;
+        }
+        case 'substrate': {
+          const sub = mapAmazonItemToSubstrate(item);
+          await saveAmazonSubstrate(sub);
+          break;
+        }
+      }
 
-    switch (activeCategory) {
-      case 'tank': {
-        const tank = mapAmazonItemToTank(item);
-        const { error: e } = await supabase.from('tanks').insert({
-          user_id: userId,
-          name: tank.name,
-          brand: tank.brand,
-          dimensions: tank.dimensions,
-          volume_gallons: tank.volumeGallons,
-          volume_liters: tank.volumeLiters,
-          shape: tank.shape,
-          material: tank.material,
-          price: tank.price,
-          image_url: tank.imageUrl,
-          link: tank.link,
-          purchase_links: tank.purchaseLinks
-        });
-        error = e;
-        break;
-      }
-      case 'fish': {
-        const fish = mapAmazonItemToFish(item);
-        const { error: e } = await supabase.from('species').insert({
-          user_id: userId,
-          type: 'fish',
-          common_name: fish.commonName,
-          scientific_name: fish.scientificName,
-          category: fish.category,
-          subcategory: fish.subcategory,
-          adult_size_inches: fish.adultSizeInches,
-          min_tank_gallons: fish.minTankGallons,
-          swimming_level: fish.swimmingLevel,
-          water_params: fish.waterParams,
-          temperament: fish.temperament,
-          schooling_size: fish.schoolingSize,
-          territorial_radius: fish.territorialRadius,
-          incompatible_with: fish.incompatibleWith,
-          predator_of: fish.predatorOf,
-          prey_to: fish.preyTo,
-          nips_at_fins: fish.nipsAtFins,
-          incompatible_with_long_finned: fish.incompatibleWithLongFinned,
-          is_long_finned: fish.isLongFinned,
-          care_level: fish.careLevel,
-          diet: fish.diet,
-          price: fish.price,
-          image_url: fish.imageUrl,
-          link: fish.link,
-          purchase_links: fish.purchaseLinks
-        });
-        error = e;
-        break;
-      }
-      case 'inverts': {
-        const invert = mapAmazonItemToInvertebrate(item);
-        const { error: e } = await supabase.from('species').insert({
-          user_id: userId,
-          type: 'invertebrate',
-          common_name: invert.commonName,
-          scientific_name: invert.scientificName,
-          category: invert.category,
-          subcategory: invert.subcategory,
-          adult_size_inches: invert.adultSizeInches,
-          min_tank_gallons: invert.minTankGallons,
-          swimming_level: invert.swimmingLevel,
-          water_params: invert.waterParams,
-          temperament: invert.temperament,
-          schooling_size: invert.schoolingSize,
-          territorial_radius: invert.territorialRadius,
-          incompatible_with: invert.incompatibleWith,
-          predator_of: invert.predatorOf,
-          prey_to: invert.preyTo,
-          care_level: invert.careLevel,
-          diet: invert.diet,
-          copper_sensitive: invert.copperSensitive,
-          bioload: invert.bioload,
-          plant_safe: invert.plantSafe,
-          price: invert.price,
-          image_url: invert.imageUrl,
-          link: invert.link,
-          purchase_links: invert.purchaseLinks
-        });
-        error = e;
-        break;
-      }
-      case 'plants': {
-        const plant = mapAmazonItemToPlant(item);
-        const { error: e } = await supabase.from('plants').insert({
-          user_id: userId,
-          common_name: plant.commonName,
-          scientific_name: plant.scientificName,
-          category: plant.category,
-          light_requirement: plant.lightRequirement,
-          co2_required: plant.co2Required,
-          co2_recommended: plant.co2Recommended,
-          substrate_type: plant.substrateType,
-          water_params: plant.waterParams,
-          growth_rate: plant.growthRate,
-          max_height_inches: plant.maxHeightInches,
-          placement: plant.placement,
-          incompatible_with_fish: plant.incompatibleWithFish,
-          price: plant.price,
-          image_url: plant.imageUrl,
-          link: plant.link,
-          purchase_links: plant.purchaseLinks
-        });
-        error = e;
-        break;
-      }
-      case 'filter':
-      case 'heater':
-      case 'light':
-      case 'co2':
-      case 'other': {
-        let eqCat: EquipmentCategory = 'Other';
-        if (activeCategory === 'filter') eqCat = 'Filter';
-        if (activeCategory === 'heater') eqCat = 'Heater';
-        if (activeCategory === 'light') eqCat = 'Light';
-        if (activeCategory === 'co2') eqCat = 'CO2';
-        
-        const equip = mapAmazonItemToEquipment(item, eqCat);
-        const { error: e } = await supabase.from('equipment').insert({
-          user_id: userId,
-          name: equip.name,
-          brand: equip.brand,
-          category: equip.category,
-          price: equip.price,
-          min_tank_gallons: equip.minTankGallons,
-          max_tank_gallons: equip.maxTankGallons,
-          flow_rate_gph: equip.flowRateGPH,
-          watts: equip.watts,
-          lumens: equip.lumens,
-          length_inches: equip.lengthInches,
-          filter_type: equip.filterType,
-          image_url: equip.imageUrl,
-          link: equip.link,
-          purchase_links: equip.purchaseLinks
-        });
-        error = e;
-        break;
-      }
-      case 'substrate': {
-        const sub = mapAmazonItemToSubstrate(item);
-        const { error: e } = await supabase.from('substrates').insert({
-          user_id: userId,
-          name: sub.name,
-          brand: sub.brand,
-          type: sub.type,
-          nutrient_rich: sub.nutrientRich,
-          buffers_ph: sub.buffersPH,
-          buffers_to: sub.buffersTo,
-          grain_size_mm: sub.grainSizeMM,
-          color: sub.color,
-          pounds_per_gallon: sub.poundsPerGallon,
-          bag_size_pounds: sub.bagSizePounds,
-          price: sub.price,
-          image_url: sub.imageUrl,
-          link: sub.link,
-          purchase_links: sub.purchaseLinks
-        });
-        error = e;
-        break;
-      }
-    }
-
-    if (error) {
-      console.error('Error saving custom part:', error);
-      alert('Failed to save custom part. See console for details.');
-    } else {
-      // Switch to local view to show the newly added item
-      // We might need to revalidate the SWR cache here
+      // If we get here, it was successful
       setSearchSource('local');
+      
+    } catch (e) {
+      console.error('Error saving custom part:', e);
+      alert('Failed to save custom part. See console for details.');
     }
   };
 
